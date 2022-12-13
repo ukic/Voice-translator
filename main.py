@@ -13,4 +13,4 @@ language = "EN.wav"
 
 speech_to_txt(model_size, path, language)
 
-print('HELLO')
+print('HELLObaba')
