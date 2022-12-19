@@ -17,6 +17,8 @@ def speak(path,language):
     wave_obj = sa.WaveObject.from_wave_read(wave_read)
     play_obj = wave_obj.play()
     play_obj.wait_done()
+    
+    print('test')
 
 if __name__=="__main__":
     
