@@ -1,0 +1,11 @@
+{
+    "en": {
+        "pl": {
+            "configuration": "./models/en-pl/decoder.yml",
+            "sourcebpe": "./models/en-pl/source.bpe",
+            "targetbpe": "./models/en-pl/target.bpe",
+            "host": "localhost",
+            "port": "10002"
+        }
+    }
+}
