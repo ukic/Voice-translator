@@ -1,5 +1,0 @@
-grpcio==1.38.1
-grpcio-tools==1.38.1
-protobuf==3.18.1
-numpy==1.22.0
-sounddevice==0.4.1
