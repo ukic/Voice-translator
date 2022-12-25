@@ -29,7 +29,3 @@ def Translate_easy(lang=str, text=str) -> str:
     translated = model.translate(text, target_lang=lang)
     return translated
 
-
-print(Translate_easy("es", "Bardzo chciałbym podziękować za obecny rok, jesteście wszyscy niesamowici."))
-print(Translate_easy("es", "How are you today?"))
-print(Translate_easy("pl", "Como estas?"))
