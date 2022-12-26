@@ -1,8 +1,8 @@
-import techmo_tts_pb2
-import techmo_tts_pb2_grpc
+import tm_master.tts.techmo_tts_pb2 as techmo_tts_pb2
+import tm_master.tts.techmo_tts_pb2_grpc as techmo_tts_pb2_grpc
 import grpc
 import os
-from create_channel import create_channel
+from tm_master.tts.create_channel import create_channel
 
 def call_listvoices(args):
     channel = create_channel(args.service, args.tls_directory)

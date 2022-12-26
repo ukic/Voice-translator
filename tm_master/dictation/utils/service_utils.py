@@ -1,5 +1,5 @@
 import grpc
-from service import dictation_asr_pb2 as dictation_asr_pb2
+import tm_master.dictation.service.dictation_asr_pb2 as dictation_asr_pb2
 
 class ServiceUtils:
 

@@ -1,10 +1,10 @@
-import techmo_tts_pb2
-import techmo_tts_pb2_grpc
+import tm_master.tts.techmo_tts_pb2 as techmo_tts_pb2
+import tm_master.tts.techmo_tts_pb2_grpc as techmo_tts_pb2_grpc
 import grpc
 import os
-from audio_player import AudioPlayer
-from audio_saver import AudioSaver
-from create_channel import create_channel
+from tm_master.tts.audio_player import AudioPlayer
+from tm_master.tts.audio_saver import AudioSaver
+from tm_master.tts.create_channel import create_channel
 
 
 def call_synthesize(args, text):

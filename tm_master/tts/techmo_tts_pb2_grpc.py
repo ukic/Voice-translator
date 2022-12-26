@@ -2,8 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import techmo_tts_pb2 as techmo__tts__pb2
-
+import tm_master.tts.techmo_tts_pb2 as techmo__tts__pb2
 
 class TTSStub(object):
     """Service that implements Techmo Text-To-Speech (TTS) API.

@@ -1,8 +1,8 @@
 from argparse import ArgumentParser
 import codecs
 from VERSION import TTS_CLIENT_VERSION
-from call_listvoices import call_listvoices
-from call_synthesize import call_synthesize
+from tm_master.tts.call_listvoices import call_listvoices
+from tm_master.tts.call_synthesize import call_synthesize
 
 
 def main():

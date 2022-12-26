@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from . import dictation_asr_pb2 as dictation__asr__pb2
+from tm_master.dictation.service import dictation_asr_pb2 as dictation__asr__pb2
 
 
 class SpeechStub(object):

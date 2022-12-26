@@ -1,15 +1,16 @@
-import sys
+import os
 import pyaudio
 import numpy as np
-from PyQt5.QtWidgets import QApplication, QWidget, QRadioButton, QVBoxLayout, QHBoxLayout, QPushButton, QGridLayout, \
-    QLabel, QTextEdit, QButtonGroup
+from PyQt5.QtWidgets import QWidget, QRadioButton, QVBoxLayout, QHBoxLayout, QPushButton, QGridLayout, \
+    QLabel, QTextEdit, QButtonGroup, QMenuBar, QMenu, QAction, QFileDialog
 from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon
-from tm_master.run_tts import to_speech
+
+from wav_manager import read_from_wav, write_to_wav, play_wav, play_np
 from tm_master.run_dictation import transcribe
 from pywhisper_asr import transcribe_pw
-from wav_manager import read_from_wav, write_to_wav
-
+from translation.my_main import Translate_easy
+from tm_master.run_tts import to_speech
 
 BUFFER_SIZE = 1024
 TYPE = np.float32
@@ -47,8 +48,11 @@ class MyApp(QWidget):
     def __init__(self):
         super().__init__()
 
+        # Menu bar
+        self.menuBar = QMenuBar()
+
         # Creating buttons
-        self.translations = ['es-en', 'en-es', 'en-pl', 'pl-en', 'es-pl', 'pl-es']
+        self.translations = ['en-es', 'en-pl', 'es-en', 'es-pl', 'pl-en', 'pl-es']
         self.translations_buttons = QButtonGroup()
         self.asr_buttons = QButtonGroup()
         self.rec_button = QPushButton()
@@ -66,16 +70,20 @@ class MyApp(QWidget):
 
         # Recorded data
         self.recorded_data = None
+        self.recorded_text = None
+        self.translated_text = None
 
         # Paths
-        self.input_path = "D:/AGH/TM/VT/input_sound.wav"
-        self.output_path = "D:/AGH/TM/VT/output_sound.wav"
+        self.input_path = "input_sound.wav"
+        self.output_path = "output_sound.wav"
 
         # Translation mode
         self.mode = 'en-pl'
 
         # Creating app layout
         self.setFixedSize(1000, 800)
+        self.setWindowTitle("Voice Translator")
+        self.setWindowIcon(QIcon("icons/mic.png"))
         self.create_layout()
 
     def create_translation_box(self):
@@ -92,7 +100,7 @@ class MyApp(QWidget):
             self.translations_buttons.addButton(button, i)
             i += 1
 
-        self.translations_buttons.button(0).setChecked(True)
+        self.translations_buttons.button(1).setChecked(True)
         return translate_layout
 
     def create_asr_box(self):
@@ -137,6 +145,7 @@ class MyApp(QWidget):
         play_button = QPushButton()
         play_button.setFixedSize(40, 40)
         play_button.setIcon(QIcon("icons/play.jpg"))
+        play_button.clicked.connect(lambda: play_np(self.recorded_data))
         input_layout.addWidget(play_button)
         input_layout.addWidget(QLabel("Output text: "))
 
@@ -145,20 +154,36 @@ class MyApp(QWidget):
         play_button2 = QPushButton()
         play_button2.setFixedSize(40, 40)
         play_button2.setIcon(QIcon("icons/play.jpg"))
+        play_button2.clicked.connect(lambda : self.play_button_clicked(self.output_path))
         input_layout.addWidget(play_button2)
 
         input_layout.setContentsMargins(0, 20, 0, 0)
         input_layout.addWidget(self.status_label)
         return input_layout
 
+    def create_menu_bar(self):
+        file_menu = QMenu("&File", self)
+
+        set_ins_path_action = QAction("&Choose input sound path...", self)
+        set_ins_path_action.triggered.connect(self.set_input_address)
+        file_menu.addAction(set_ins_path_action)
+
+        set_outs_path_action = QAction("&Choose output sound path...", self)
+        set_outs_path_action.triggered.connect(self.set_output_address)
+        file_menu.addAction(set_outs_path_action)
+
+        self.menuBar.addMenu(file_menu)
+
     def create_layout(self):
         layout = QGridLayout()
         layout.setContentsMargins(20, 20, 20, 20)
+        self.create_menu_bar()
 
         layout.addLayout(self.create_translation_box(), 0, 1, 2, 1)
         layout.addLayout(self.create_asr_box(), 1, 0)
         layout.addLayout(self.create_recording_box(), 0, 0)
         layout.addLayout(self.create_text_box(), 2, 0, 2, 2)
+        layout.setMenuBar(self.menuBar)
 
         self.setLayout(layout)
 
@@ -169,6 +194,26 @@ class MyApp(QWidget):
     def set_addresses(self):
         self.mode = self.translations[self.translations_buttons.checkedId()]
 
+    def play_button_clicked(self, path):
+        play_wav(path)
+
+    def set_input_address(self):
+        self.input_path = self.get_address()
+
+    def set_output_address(self):
+        self.output_path = self.get_address()
+
+    def get_address(self):
+        file_filter = 'Data File (*.wav)'
+        response = QFileDialog.getSaveFileName(
+            parent=self,
+            caption='Select path',
+            directory=os.getcwd(),
+            filter=file_filter,
+        )
+        print(response)
+        return response[0]
+
     def recording_button_clicked(self):
         self.status_label.setText("Status: Recording")
         self.set_disabled_buttons(True, self.translations_buttons)
@@ -178,30 +223,25 @@ class MyApp(QWidget):
         self.data_loading_thread.start()
 
     def stop_button_clicked(self):
-        print(self.data_loading_thread.exit())
+        self.data_loading_thread.exit()
         self.recorded_data = self.data_loading_thread.data
         write_to_wav(self.recorded_data, self.input_path)
         self.recognise()
+        self.translate()
+        self.end_proccess()
 
     def recognise(self):
-        self.status_label.setText("Status: Recognizing text")
-        recognised_text = transcribe_pw(self.input_path)
-        self.input_textBox.setPlainText(recognised_text)
-        self.translate()
+        self.status_label.setText("Status: Recognising text")
+        self.recorded_text = transcribe_pw(self.input_path)
+        self.input_textBox.setPlainText(self.recorded_text)
 
     def translate(self):
         self.status_label.setText("Status: Translating")
-        self.output_textBox.setPlainText("Translated text")
-        self.end_proccess()
+        self.translated_text = Translate_easy(self.mode[3:5], self.recorded_text)
+        self.output_textBox.setPlainText(self.translated_text)
 
     def end_proccess(self):
         self.status_label.setText("Status: Ready")
         self.set_disabled_buttons(False, self.translations_buttons)
         self.set_disabled_buttons(False, self.asr_buttons)
 
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = MyApp()
-    window.show()
-    sys.exit(app.exec())

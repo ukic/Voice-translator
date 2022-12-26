@@ -2,10 +2,10 @@ import os
 import threading
 from grpc_health.v1 import health_pb2
 from grpc_health.v1 import health_pb2_grpc
-from . import dictation_asr_pb2 as dictation_asr_pb2
-from . import dictation_asr_pb2_grpc as dictation_asr_pb2_grpc
-from utils.audio_loader import AudioLoader
-from utils.service_utils import ServiceUtils
+import tm_master.dictation.service.dictation_asr_pb2 as dictation_asr_pb2
+import tm_master.dictation.service.dictation_asr_pb2_grpc as dictation_asr_pb2_grpc
+from tm_master.dictation.utils.audio_loader import AudioLoader
+from tm_master.dictation.utils.service_utils import ServiceUtils
 
 
 import grpc
