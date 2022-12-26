@@ -6,9 +6,9 @@ from PyQt5.QtWidgets import QWidget, QRadioButton, QVBoxLayout, QHBoxLayout, QPu
 from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon
 
-from wav_manager import read_from_wav, write_to_wav, play_wav, play_np
+from WavManager import read_from_wav, write_to_wav, play_wav, play_np
 from tm_master.run_dictation import transcribe
-from pywhisper_asr import transcribe_pw
+from WhisperASR import transcribe_pw
 from translation.my_main import Translate_easy
 from tm_master.run_tts import to_speech
 
