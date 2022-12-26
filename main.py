@@ -17,7 +17,8 @@ print(Translate_easy("es", "How are you today?"))
 print(Translate_easy("pl", "Como estas?"))
 """
 
-from myapp import MyApp
+
+from MyApp import MyApp
 import sys
 from PyQt5.QtWidgets import QApplication
 
