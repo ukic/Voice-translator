@@ -238,6 +238,7 @@ class MyApp(QWidget):
     def translate(self):
         self.status_label.setText("Status: Translating")
         self.translated_text = Translate_easy(self.mode[3:5], self.recorded_text)
+        to_speech("tts-" + self.mode[3:5], self.translated_text, self.output_path)
         self.output_textBox.setPlainText(self.translated_text)
 
     def end_proccess(self):
