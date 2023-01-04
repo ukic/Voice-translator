@@ -21,11 +21,15 @@ from easynmt import EasyNMT
 # model = np.load(".\models\en-pl\opus.bpe32k-bpe32k.transformer.model1.npz.best-perplexity.npz")
 # translator = server.TranslatorInterface("en", "pl", service, model)
 #
-# a = translator.translate("I have an immense depression")
+# a = translator.translate("That is very satisfying"")
 # print(a)
 
-def Translate_easy(lang=str, text=str) -> str:
-    model = EasyNMT('opus-mt')
-    translated = model.translate(text, target_lang=lang)
+def Translate_easy(target_lang=str, source_lang=str, text=str) -> str:
+
+    if target_lang == "pl" and source_lang == "en":
+        model = EasyNMT('m2m_100_418M')
+    else:
+        model = EasyNMT('opus-mt')
+    translated = model.translate(text, target_lang, source_lang)
     return translated
 

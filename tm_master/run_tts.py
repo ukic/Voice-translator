@@ -5,7 +5,7 @@ from tm_master.tts.call_synthesize import call_synthesize
 from argparse import ArgumentParser
 from tm_master.address_provider import AddressProvider
 from pathlib import Path
-
+import simpleaudio as sa
 
 def tts_args(address:str, output_path: [Path or str] = "TechmoTTS.wav"):
     parser = ArgumentParser()
@@ -73,6 +73,37 @@ def to_speech(address: str, input_text: str, output_path: [Path or str], sr: int
     address_ap = ap.get(address)
     tts_args_pl = tts_args(address_ap, output_path=output_path)
     call_synthesize(tts_args_pl, input_text)
+
+
+def run_tts_function(Language, txt):
+    # Config:
+    ap = AddressProvider()
+    sampling_rate = 44100
+
+    if Language == "pl":
+
+        address = ap.get("tts-pl")
+        input_text = txt
+        tts_args_pl = tts_args(address, output_path="TTS_PL.wav")
+        call_synthesize(tts_args_pl, input_text)  # wywołanie generuje plik wav z syntezowanym głosem
+
+        filename = 'TTS_PL.wav'
+        wave_obj = sa.WaveObject.from_wave_file(filename)
+        play_obj = wave_obj.play()
+        play_obj.wait_done()  # Wait until sound has finished playing
+
+    elif Language == "en":
+
+        address = ap.get("tts-en")
+        input_text = txt
+        tts_args_pl = tts_args(address, output_path="TTS_EN.wav")
+        call_synthesize(tts_args_pl, input_text)  # wywołanie generuje plik wav z syntezowanym głosem
+
+        filename = 'TTS_EN.wav'
+        wave_obj = sa.WaveObject.from_wave_file(filename)
+        play_obj = wave_obj.play()
+        play_obj.wait_done()  # Wait until sound has finished playing
+
 
 """
 if __name__ == '__main__':

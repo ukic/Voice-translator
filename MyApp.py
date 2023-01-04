@@ -10,7 +10,7 @@ from WavManager import read_from_wav, write_to_wav, play_wav, play_np
 from tm_master.run_dictation import transcribe
 from WhisperASR import transcribe_pw
 from translation.my_main import Translate_easy
-from tm_master.run_tts import to_speech
+from tm_master.run_tts import run_tts_function
 
 BUFFER_SIZE = 1024
 TYPE = np.float32
@@ -145,7 +145,7 @@ class MyApp(QWidget):
         play_button = QPushButton()
         play_button.setFixedSize(40, 40)
         play_button.setIcon(QIcon("icons/play.jpg"))
-        play_button.clicked.connect(lambda: play_np(self.recorded_data))
+        play_button.clicked.connect(lambda: run_tts_function(self.mode[0:2],self.recorded_text))
         input_layout.addWidget(play_button)
         input_layout.addWidget(QLabel("Output text: "))
 
@@ -154,7 +154,7 @@ class MyApp(QWidget):
         play_button2 = QPushButton()
         play_button2.setFixedSize(40, 40)
         play_button2.setIcon(QIcon("icons/play.jpg"))
-        play_button2.clicked.connect(lambda : self.play_button_clicked(self.output_path))
+        play_button2.clicked.connect(lambda: run_tts_function(self.mode[3:5],self.translated_text))
         input_layout.addWidget(play_button2)
 
         input_layout.setContentsMargins(0, 20, 0, 0)
@@ -237,7 +237,7 @@ class MyApp(QWidget):
 
     def translate(self):
         self.status_label.setText("Status: Translating")
-        self.translated_text = Translate_easy(self.mode[3:5], self.recorded_text)
+        self.translated_text = Translate_easy(self.mode[3:5], self.mode[0:2], self.recorded_text)
         self.output_textBox.setPlainText(self.translated_text)
 
     def end_proccess(self):
