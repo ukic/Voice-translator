@@ -1,47 +1,19 @@
 import os
-import pyaudio
 import numpy as np
 from PyQt5.QtWidgets import QWidget, QRadioButton, QVBoxLayout, QHBoxLayout, QPushButton, QGridLayout, \
     QLabel, QTextEdit, QButtonGroup, QMenuBar, QMenu, QAction, QFileDialog
-from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon
 
-from WavManager import read_from_wav, write_to_wav, play_wav, play_np
-from tm_master.run_dictation import transcribe
+from StreamThread import StreamThread
+from WavManager import write_to_wav, play_wav, play_np
 from WhisperASR import transcribe_pw
-from translation.my_main import Translate_easy
+from translation.run_translation import translate_easy
 from tm_master.run_tts import to_speech
+from tm_master.run_dictation import transcribe
+import pywhisper
 
 BUFFER_SIZE = 1024
 TYPE = np.float32
-
-
-class StreamThread(QThread):
-    def __init__(self):
-        super().__init__()
-        self.data = None
-        self.cond = True
-
-    def run(self):
-        i = 0
-
-        p = pyaudio.PyAudio()
-        stream = p.open(format=pyaudio.paFloat32, channels=1, rate=44100, input=True, frames_per_buffer=BUFFER_SIZE)
-        data = stream.read(BUFFER_SIZE)
-        self.data = np.frombuffer(data, dtype=TYPE)
-
-        while True:
-            data = stream.read(BUFFER_SIZE)
-            self.data = np.concatenate((self.data, np.frombuffer(data, dtype=TYPE)), axis=0)
-            i += 1
-            if not self.cond: break
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
-
-    def exit(self, returnCode: int = ...) -> None:
-        self.cond = False
-        return super(StreamThread, self).exit()
 
 
 class MyApp(QWidget):
@@ -72,6 +44,9 @@ class MyApp(QWidget):
         self.recorded_data = None
         self.recorded_text = None
         self.translated_text = None
+
+        # Models
+        self.asr_model_pywhisper = pywhisper.load_model("large")
 
         # Paths
         self.input_path = "input_sound.wav"
@@ -154,7 +129,7 @@ class MyApp(QWidget):
         play_button2 = QPushButton()
         play_button2.setFixedSize(40, 40)
         play_button2.setIcon(QIcon("icons/play.jpg"))
-        play_button2.clicked.connect(lambda : self.play_button_clicked(self.output_path))
+        play_button2.clicked.connect(lambda: self.play_button_clicked(self.output_path))
         input_layout.addWidget(play_button2)
 
         input_layout.setContentsMargins(0, 20, 0, 0)
@@ -232,12 +207,15 @@ class MyApp(QWidget):
 
     def recognise(self):
         self.status_label.setText("Status: Recognising text")
-        self.recorded_text = transcribe_pw(self.input_path)
+        if self.asr_buttons.checkedId() == 0:
+            self.recorded_text = transcribe("tts" + self.mode[:2], self.input_path)
+        else:
+            self.recorded_text = transcribe_pw(self.input_path, self.asr_model_pywhisper)
         self.input_textBox.setPlainText(self.recorded_text)
 
     def translate(self):
         self.status_label.setText("Status: Translating")
-        self.translated_text = Translate_easy(self.mode[3:5], self.recorded_text)
+        self.translated_text = translate_easy(self.mode[3:5], self.recorded_text)
         to_speech("tts-" + self.mode[3:5], self.translated_text, self.output_path)
         self.output_textBox.setPlainText(self.translated_text)
 
@@ -245,4 +223,3 @@ class MyApp(QWidget):
         self.status_label.setText("Status: Ready")
         self.set_disabled_buttons(False, self.translations_buttons)
         self.set_disabled_buttons(False, self.asr_buttons)
-

@@ -2,8 +2,8 @@ import pywhisper
 from pathlib import Path
 
 
-def transcribe_pw(file: [Path, str]):
-    model = pywhisper.load_model("small")
+def transcribe_pw(file: [Path, str], model_size):
+    model = pywhisper.load_model(model_size)
     result = model.transcribe(file)
     return result["text"]
 
