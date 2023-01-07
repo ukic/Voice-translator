@@ -80,6 +80,9 @@ class MyApp(QWidget):
         # Translation mode
         self.mode = 'en-pl'
 
+        #initializing models
+        self.initialized = False
+
         # Creating app layout
         self.setFixedSize(1000, 800)
         self.setWindowTitle("Voice Translator")
@@ -237,8 +240,15 @@ class MyApp(QWidget):
 
     def translate(self):
         self.status_label.setText("Status: Translating")
+        if not self.initialized:
+            self.initialize_models()
         self.translated_text = Translate_easy(self.mode[3:5], self.mode[0:2], self.recorded_text)
         self.output_textBox.setPlainText(self.translated_text)
+
+    def initialize_models(self):
+        for t_pair in self.translations:
+            Translate_easy(t_pair[3:5], t_pair[0:2], "hi")
+        self.initialized = True
 
     def end_proccess(self):
         self.status_label.setText("Status: Ready")
