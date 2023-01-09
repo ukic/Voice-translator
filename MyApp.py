@@ -7,15 +7,11 @@ from PyQt5.QtGui import QIcon
 from StreamThread import StreamThread
 from WavManager import write_to_wav, play_wav, play_np
 from WhisperASR import transcribe_pw
-<<<<<<< HEAD
-from translation.my_main import Translate_easy
-from tm_master.run_tts import run_tts_function
-=======
+
 from translation.run_translation import translate_easy
 from tm_master.run_tts import to_speech
 from tm_master.run_dictation import transcribe
 import pywhisper
->>>>>>> gui
 
 BUFFER_SIZE = 1024
 TYPE = np.float32
@@ -137,11 +133,7 @@ class MyApp(QWidget):
         play_button2 = QPushButton()
         play_button2.setFixedSize(40, 40)
         play_button2.setIcon(QIcon("icons/play.jpg"))
-<<<<<<< HEAD
-        play_button2.clicked.connect(lambda: run_tts_function(self.mode[3:5],self.translated_text))
-=======
         play_button2.clicked.connect(lambda: self.play_button_clicked(self.output_path))
->>>>>>> gui
         input_layout.addWidget(play_button2)
 
         input_layout.setContentsMargins(0, 20, 0, 0)
@@ -228,19 +220,15 @@ class MyApp(QWidget):
 
     def translate(self):
         self.status_label.setText("Status: Translating")
-<<<<<<< HEAD
         if not self.initialized:
             self.initialize_models()
-        self.translated_text = Translate_easy(self.mode[3:5], self.mode[0:2], self.recorded_text)
-=======
-        self.translated_text = translate_easy(self.mode[3:5], self.recorded_text)
+        self.translated_text = translate_easy(self.mode[3:5], self.mode[0:2], self.recorded_text)
         to_speech("tts-" + self.mode[3:5], self.translated_text, self.output_path)
->>>>>>> gui
         self.output_textBox.setPlainText(self.translated_text)
 
     def initialize_models(self):
         for t_pair in self.translations:
-            Translate_easy(t_pair[3:5], t_pair[0:2], "hi")
+            translate_easy(t_pair[3:5], t_pair[0:2], "hi")
         self.initialized = True
 
     def end_proccess(self):
