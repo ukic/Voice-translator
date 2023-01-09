@@ -46,7 +46,7 @@ class MyApp(QWidget):
         self.translated_text = None
 
         # Models
-        self.asr_model_pywhisper = pywhisper.load_model("large")
+        self.asr_model_pywhisper = pywhisper.load_model("small")
 
         # Paths
         self.input_path = "input_sound.wav"
@@ -195,6 +195,7 @@ class MyApp(QWidget):
         self.set_disabled_buttons(True, self.asr_buttons)
         self.set_addresses()
 
+        #self.data_loading_thread = StreamThread()
         self.data_loading_thread.start()
 
     def stop_button_clicked(self):
@@ -207,7 +208,7 @@ class MyApp(QWidget):
 
     def recognise(self):
         self.status_label.setText("Status: Recognising text")
-        if self.asr_buttons.checkedId() == 0:
+        if self.asr_buttons.checkedId() == 1:
             self.recorded_text = transcribe("tts" + self.mode[:2], self.input_path)
         else:
             self.recorded_text = transcribe_pw(self.input_path, self.asr_model_pywhisper)

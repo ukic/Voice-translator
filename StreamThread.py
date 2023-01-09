@@ -15,6 +15,7 @@ class StreamThread(QThread):
 
     def run(self):
         i = 0
+        self.cond = True
 
         p = pyaudio.PyAudio()
         stream = p.open(format=pyaudio.paFloat32, channels=1, rate=44100, input=True, frames_per_buffer=BUFFER_SIZE)
