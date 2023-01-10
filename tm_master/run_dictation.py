@@ -96,33 +96,4 @@ def transcribe(address, wav_file):
             print("Continuous Streaming Recognition doesn't support multiple ASR alternatives.\n"
                   "Set --max-alternatives to 1 or run streaming recognition with --single-utterance parameter.")
             sys.exit(1)
-
-
-"""if __name__ == '__main__':
-
-    ap = AddressProvider()
-    address = ap.get("asr-pl")
-    args = asr_args(address, "waves/example.wav")
-
-    settings = DictationSettings(args)
-    channel = ServiceUtils.create_channel(args.address, args.tls_directory)
-
-    if args.wait_for_service_start > 0:
-        health_status = ServiceUtils.check_health(channel, args.wait_for_service_start)
-        if health_status != 0:
-            sys.exit(health_status)
-
-    if args.sync:
-        recognizer = SyncRecognizer(channel, settings)
-
-        if args.audio is not None:
-            audio = AudioLoader(args.audio)
-            print('Recognizing...')
-            results = recognizer.recognize(audio)
-            print_results(results)
-
-    else:
-        if args.max_alternatives > 1 and not args.single_utterance:
-            print("Continuous Streaming Recognition doesn't support multiple ASR alternatives.\n"
-                  "Set --max-alternatives to 1 or run streaming recognition with --single-utterance parameter.")
-            sys.exit(1)"""
+        
