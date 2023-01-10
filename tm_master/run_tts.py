@@ -103,22 +103,3 @@ def run_tts_function(Language, txt):
         wave_obj = sa.WaveObject.from_wave_file(filename)
         play_obj = wave_obj.play()
         play_obj.wait_done()  # Wait until sound has finished playing
-
-
-"""
-if __name__ == '__main__':
-    # Config:
-    ap = AddressProvider()
-    sampling_rate = 44100
-
-    address = ap.get("tts-pl")
-    input_text = "Ala ma kota i chciałaby zaliczyć Technologię Mowy w dwa tysiące dwudziestym drugim roku na ocenę 5.0"
-    tts_args_pl = tts_args(address, output_path="TTS_PL.wav")
-    call_synthesize(tts_args_pl, input_text)  # wywołanie generuje plik wav z syntezowanym głosem
-
-    address = ap.get("tts-en")
-    input_text = "Ann has a cat and wants to finish Speech Technologies in 2022 with A."
-    tts_args_pl = tts_args(address,  output_path="TTS_EN.wav")
-    call_synthesize(tts_args_pl, input_text)  # wywołanie generuje plik wav z syntezowanym głosem
-"""
-
