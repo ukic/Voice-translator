@@ -8,4 +8,4 @@ def translate_easy(target_lang=str, source_lang=str, text=str) -> str:
         model = EasyNMT('opus-mt')
     translated = model.translate(text, target_lang, source_lang)
     return translated
->>>>>>> main:translation/my_main.py
+
