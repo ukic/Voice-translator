@@ -27,10 +27,7 @@ class StreamThread(QThread):
             self.data = np.concatenate((self.data, np.frombuffer(data, dtype=TYPE)), axis=0)
             i += 1
             if not self.cond: break
-<<<<<<< HEAD
-=======
-
->>>>>>> main
+             
         stream.stop_stream()
         stream.close()
         p.terminate()
