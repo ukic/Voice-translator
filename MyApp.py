@@ -199,7 +199,6 @@ class MyApp(QWidget):
         self.set_disabled_buttons(True, self.asr_buttons)
         self.set_addresses()
 
-        #self.data_loading_thread = StreamThread()
         self.data_loading_thread.start()
 
     def stop_button_clicked(self):
