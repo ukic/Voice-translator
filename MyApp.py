@@ -9,7 +9,7 @@ from WavManager import write_to_wav, play_wav, play_np
 from WhisperASR import transcribe_pw
 
 from translation.run_translation import translate_easy
-from tm_master.run_tts import to_speech
+from tm_master.run_tts import to_speech, run_tts_function
 from tm_master.run_dictation import transcribe
 import pywhisper
 
@@ -124,7 +124,7 @@ class MyApp(QWidget):
         play_button = QPushButton()
         play_button.setFixedSize(40, 40)
         play_button.setIcon(QIcon("icons/play.jpg"))
-        play_button.clicked.connect(lambda: run_tts_function(self.mode[0:2],self.recorded_text))
+        play_button.clicked.connect(lambda: run_tts_function(self.mode[0:2], self.recorded_text))
         input_layout.addWidget(play_button)
         input_layout.addWidget(QLabel("Output text: "))
 
@@ -211,7 +211,7 @@ class MyApp(QWidget):
 
     def recognise(self):
         self.status_label.setText("Status: Recognising text")
-        if self.asr_buttons.checkedId() == 1:
+        if self.asr_buttons.checkedId() == -3:
             self.recorded_text = transcribe("tts" + self.mode[:2], self.input_path)
         else:
             self.recorded_text = transcribe_pw(self.input_path, self.asr_model_pywhisper)
@@ -222,8 +222,9 @@ class MyApp(QWidget):
         if not self.initialized:
             self.initialize_models()
         self.translated_text = translate_easy(self.mode[3:5], self.mode[0:2], self.recorded_text)
-        to_speech("tts-" + self.mode[3:5], self.translated_text, self.output_path)
         self.output_textBox.setPlainText(self.translated_text)
+        if self.mode[3:5] != "es":
+            to_speech("tts-" + self.mode[3:5], self.translated_text, self.output_path)
 
     def initialize_models(self):
         for t_pair in self.translations:
