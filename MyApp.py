@@ -1,11 +1,11 @@
 import os
 import numpy as np
 from PyQt5.QtWidgets import QWidget, QRadioButton, QVBoxLayout, QHBoxLayout, QPushButton, QGridLayout, \
-    QLabel, QTextEdit, QButtonGroup, QMenuBar, QMenu, QAction, QFileDialog
+    QLabel, QTextEdit, QButtonGroup, QMenuBar, QMenu, QAction, QFileDialog, QMessageBox
 from PyQt5.QtGui import QIcon
 
 from StreamThread import StreamThread
-from WavManager import write_to_wav, play_wav, play_np
+from WavManager import write_to_wav, play_wav
 from WhisperASR import transcribe_pw
 
 from translation.run_translation import translate_easy
@@ -58,6 +58,11 @@ class MyApp(QWidget):
 
         #initializing models
         self.initialized = False
+
+        # Error message box
+        self.error_message_box = QMessageBox()
+        self.error_message_box.setIcon(QMessageBox.Critical)
+        self.error_message_box.setText("Error")
 
         # Creating app layout
         self.setFixedSize(1000, 800)
@@ -199,32 +204,60 @@ class MyApp(QWidget):
         self.set_disabled_buttons(True, self.asr_buttons)
         self.set_addresses()
 
-        self.data_loading_thread.start()
+        try:
+            self.data_loading_thread.start()
+        except IOError:
+            self.end_proccess()
+            self.display_error_message("Error while recording occured")
+        except RuntimeError:
+            self.end_proccess()
+            self.display_error_message("Error with recording thread occured")
 
     def stop_button_clicked(self):
         self.data_loading_thread.exit()
         self.recorded_data = self.data_loading_thread.data
-        write_to_wav(self.recorded_data, self.input_path)
-        self.recognise()
-        self.translate()
-        self.end_proccess()
+        try:
+            write_to_wav(self.recorded_data, self.input_path)
+            self.recognise()
+        except Exception:
+            self.end_proccess()
+            self.display_error_message("Error with writing to wav file occurred")
 
     def recognise(self):
         self.status_label.setText("Status: Recognising text")
         if self.asr_buttons.checkedId() == -3:
-            self.recorded_text = transcribe("tts" + self.mode[:2], self.input_path)
+            try:
+                self.recorded_text = transcribe("asr-" + self.mode[:2], self.input_path)
+                self.input_textBox.setPlainText(self.recorded_text)
+                self.translate()
+            except Exception:
+                self.end_proccess()
+                self.display_error_message("Error with Techmo asr occurred. Try Whisper model")
         else:
-            self.recorded_text = transcribe_pw(self.input_path, self.asr_model_pywhisper)
-        self.input_textBox.setPlainText(self.recorded_text)
+            try:
+                self.recorded_text = transcribe_pw(self.input_path, self.asr_model_pywhisper)
+                self.input_textBox.setPlainText(self.recorded_text)
+                self.translate()
+            except Exception:
+                self.end_proccess()
+                self.display_error_message("Error with Whisper model occurred. Try again")
 
     def translate(self):
         self.status_label.setText("Status: Translating")
         if not self.initialized:
             self.initialize_models()
-        self.translated_text = translate_easy(self.mode[3:5], self.mode[0:2], self.recorded_text)
-        self.output_textBox.setPlainText(self.translated_text)
-        if self.mode[3:5] != "es":
-            to_speech("tts-" + self.mode[3:5], self.translated_text, self.output_path)
+        try:
+            self.translated_text = translate_easy(self.mode[3:5], self.mode[0:2], self.recorded_text)
+            self.output_textBox.setPlainText(self.translated_text)
+            try:
+                to_speech("tts-" + self.mode[3:5], self.translated_text, self.output_path)
+                self.end_proccess()
+            except Exception:
+                self.end_proccess()
+                self.display_error_message("Error with Techmo tts occurred")
+        except Exception:
+            self.end_proccess()
+            self.display_error_message("Error with translation occurred")
 
     def initialize_models(self):
         for t_pair in self.translations:
@@ -235,3 +268,7 @@ class MyApp(QWidget):
         self.status_label.setText("Status: Ready")
         self.set_disabled_buttons(False, self.translations_buttons)
         self.set_disabled_buttons(False, self.asr_buttons)
+
+    def display_error_message(self, error_message: str):
+        self.error_message_box.setInformativeText(error_message)
+        self.error_message_box.exec()
